@@ -35,64 +35,63 @@ val DarkGreen = Color(0xFF004D40)
 val TextDark = Color(0xFF1B5E20)
 val TextLight = Color(0xFF4E342E)
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun QuranListScreen(context: Context, verses: List<QuranVerse>, onBack: () -> Unit) {
+@OptIn(ExperimentalMaterial3Api::class)
+fun QuranListScreen(
+    context: Context,
+    verses: List<QuranVerse>,
+    onBack: () -> Unit,
+    onChapterClick: (Int) -> Unit,
+    isLoading: Boolean,
+    error: String?,
+    onClearError: () -> Unit
+) {
     var currentVerse by remember { mutableStateOf<QuranVerse?>(null) }
     var showTranslation by remember { mutableStateOf(true) }
     var showTransliteration by remember { mutableStateOf(false) }
     var expandedVerses by remember { mutableStateOf(setOf<Int>()) }
     var readingMode by remember { mutableStateOf(false) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(GradientBackground)
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Lecture du Coran",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Retour", tint = Color.Black)
-                    }
-                },
-                actions = {
-                    // Mode lecture
-                    IconButton(onClick = { readingMode = !readingMode }) {
-                        Icon(
-                            Icons.Default.MenuBook,
-                            contentDescription = "Mode lecture",
-                            tint = if (readingMode) DarkGreen else Color.Gray
-                        )
-                    }
-                    // Traduction
-                    IconButton(onClick = { showTranslation = !showTranslation }) {
-                        Icon(
-                            Icons.Default.Translate,
-                            contentDescription = "Traduction",
-                            tint = if (showTranslation) DarkGreen else Color.Gray
-                        )
-                    }
-                    // Translittération
-                    IconButton(onClick = { showTransliteration = !showTransliteration }) {
-                        Icon(
-                            Icons.Default.TextFields,
-                            contentDescription = "Translittération",
-                            tint = if (showTransliteration) DarkGreen else Color.Gray
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-            )
+    Column(modifier = Modifier.fillMaxSize().background(GradientBackground)) {
+        TopAppBar(
+            title = {
+                Text("Lecture du Coran", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            },
+            navigationIcon = {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Retour")
+                }
+            },
+            actions = {
+                IconButton(onClick = { readingMode = !readingMode }) {
+                    Icon(Icons.Default.MenuBook, contentDescription = "Lecture", tint = if (readingMode) DarkGreen else Color.Gray)
+                }
+                IconButton(onClick = { showTranslation = !showTranslation }) {
+                    Icon(Icons.Default.Translate, contentDescription = "Traduction", tint = if (showTranslation) DarkGreen else Color.Gray)
+                }
+                IconButton(onClick = { showTransliteration = !showTransliteration }) {
+                    Icon(Icons.Default.TextFields, contentDescription = "Translit.", tint = if (showTransliteration) DarkGreen else Color.Gray)
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+        )
 
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = DarkGreen)
+            }
+        } else if (error != null) {
+            Card(
+                modifier = Modifier.padding(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Erreur : $error", color = Color.Red)
+                    TextButton(onClick = onClearError) { Text("Fermer") }
+                }
+            }
+        } else {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
@@ -109,19 +108,14 @@ fun QuranListScreen(context: Context, verses: List<QuranVerse>, onBack: () -> Un
                         showTranslation = showTranslation,
                         showTransliteration = showTransliteration,
                         onExpandToggle = {
-                            expandedVerses = if (isExpanded) {
-                                expandedVerses - verse.id
-                            } else {
-                                expandedVerses + verse.id
+                            expandedVerses = if (isExpanded) expandedVerses - verse.id else expandedVerses + verse.id
+                            if (!isExpanded) {
+                                onChapterClick(verse.id)
                             }
                         },
                         onPlayToggle = {
                             currentVerse = if (currentVerse == verse) null else verse
-                            if (currentVerse == verse) {
-                                AudioPlayer.play(context, verse.audio)
-                            } else {
-                                AudioPlayer.stop()
-                            }
+                            if (currentVerse == verse) AudioPlayer.play(context, verse.audio) else AudioPlayer.stop()
                         },
                         context = context
                     )
@@ -130,6 +124,7 @@ fun QuranListScreen(context: Context, verses: List<QuranVerse>, onBack: () -> Un
         }
     }
 }
+
 
 @Composable
 fun SourateCard(
