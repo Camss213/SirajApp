@@ -81,11 +81,11 @@ fun HomeScreen(
         }
 
         Button(
-            onClick = { navController.navigate("dhikr") },
+            onClick = { navController.navigate("rappels") },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA7FFEB))
         ) {
-            Text("📿 Dhikr", fontSize = 18.sp, color = Color(0xFF004D40))
+            Text("📿 Rappels/Douaas", fontSize = 18.sp, color = Color(0xFF004D40))
         }
 
         if (isLoading) {

@@ -27,6 +27,8 @@ import com.example.siraj.ui.*
 import com.example.siraj.ui.theme.Theme_Siraj
 import com.example.siraj.viewmodel.QuranViewModel
 import com.example.siraj.ui.HomeScreen
+import com.example.siraj.ui.RappelsScreen
+
 
 
 class MainActivity : ComponentActivity() {
@@ -69,8 +71,8 @@ class MainActivity : ComponentActivity() {
                         PrayerTimesScreen(onBack = { navController.popBackStack() })
                     }
 
-                    composable("dhikr") {
-                        DhikrScreen(onBack = { navController.popBackStack() })
+                    composable("rappels") {
+                        RappelsScreen(onBack = { navController.popBackStack() })
                     }
 
                     composable("quran") {

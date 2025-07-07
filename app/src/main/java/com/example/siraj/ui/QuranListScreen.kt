@@ -2,11 +2,13 @@
 package com.example.siraj.ui
 
 import android.content.Context
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,10 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.siraj.model.QuranVerse
@@ -52,6 +57,7 @@ fun QuranListScreen(
     var showTransliteration by remember { mutableStateOf(false) }
     var expandedVerses by remember { mutableStateOf(setOf<Int>()) }
     var readingMode by remember { mutableStateOf(false) }
+    var textZoom by remember { mutableStateOf(1f)}
 
     Column(modifier = Modifier.fillMaxSize().background(GradientBackground)) {
         TopAppBar(
@@ -76,6 +82,20 @@ fun QuranListScreen(
             },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
         )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Taille du texte", fontSize = 14.sp)
+            Slider(
+                value = textZoom,
+                onValueChange = { textZoom = it },
+                valueRange = 0.8f..1.8f,
+                steps = 5,
+                modifier = Modifier.weight(1f).padding(start = 12.dp)
+            )
+        }
+
 
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -107,11 +127,10 @@ fun QuranListScreen(
                         readingMode = readingMode,
                         showTranslation = showTranslation,
                         showTransliteration = showTransliteration,
+                        textSizeFactor = textZoom, //  on passe le zoom
                         onExpandToggle = {
                             expandedVerses = if (isExpanded) expandedVerses - verse.id else expandedVerses + verse.id
-                            if (!isExpanded) {
-                                onChapterClick(verse.id)
-                            }
+                            if (!isExpanded) onChapterClick(verse.id)
                         },
                         onPlayToggle = {
                             currentVerse = if (currentVerse == verse) null else verse
@@ -134,6 +153,7 @@ fun SourateCard(
     readingMode: Boolean,
     showTranslation: Boolean,
     showTransliteration: Boolean,
+    textSizeFactor: Float,
     onExpandToggle: () -> Unit,
     onPlayToggle: () -> Unit,
     context: Context
@@ -174,7 +194,8 @@ fun SourateCard(
                         ReadingModeContent(
                             verse = verse,
                             showTranslation = showTranslation,
-                            showTransliteration = showTransliteration
+                            showTransliteration = showTransliteration,
+                            textSizeFactor = textSizeFactor
                         )
                     } else {
                         VersetsList(
@@ -269,88 +290,112 @@ fun SourateHeader(
 fun ReadingModeContent(
     verse: QuranVerse,
     showTranslation: Boolean,
-    showTransliteration: Boolean
+    showTransliteration: Boolean,
+    textSizeFactor: Float = 1f
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        shape = RoundedCornerShape(20.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-            // En-tête avec bismillah pour toutes les sourates sauf At-Tawba (9)
+
             if (verse.id != 9) {
                 Text(
-                    text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-                    fontSize = 20.sp,
+                    text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                    fontSize = (22 * textSizeFactor).sp,
+                    fontWeight = FontWeight.Medium,
+                    color = DarkGreen,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
-                    color = DarkGreen,
-                    fontWeight = FontWeight.Bold,
-                    lineHeight = 32.sp
+                    lineHeight = (36 * textSizeFactor).sp
                 )
 
                 if (showTranslation) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux",
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
+                        text = "Au nom d’Allah, le Tout Miséricordieux, le Très Miséricordieux",
+                        fontSize = (14 * textSizeFactor).sp,
                         color = Color(0xFF666666),
-                        fontStyle = FontStyle.Italic
+                        textAlign = TextAlign.Center,
+                        fontStyle = FontStyle.Italic,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Divider(color = Color(0xFFE0E0E0), thickness = 1.dp)
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Versets en mode lecture continue
             verse.versets.forEachIndexed { index, verset ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Texte arabe avec numéro de verset intégré
                     Text(
-                        text = "${verset.arabe} ﴿${verset.numero}﴾",
-                        fontSize = 20.sp,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier.weight(1f),
-                        color = TextDark,
-                        lineHeight = 36.sp
-                    )
-                }
+                        text = buildAnnotatedString {
+                            append(verset.arabe)
+                            append("  ")
 
-                if (showTransliteration && verset.transliteration.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = verset.transliteration,
-                        fontSize = 14.sp,
-                        color = Color(0xFF666666),
-                        fontStyle = FontStyle.Italic,
-                        lineHeight = 20.sp
+                            withStyle(
+                                style = SpanStyle(
+                                    fontSize = (20 * textSizeFactor).sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = DarkGreen
+                                )
+                            ) {
+                                append("۞ ${index + 1}")
+                            }
+                        },
+                        textAlign = TextAlign.Center,
+                        lineHeight = (36 * textSizeFactor).sp,
+                        modifier = Modifier.fillMaxWidth()
                     )
-                }
 
-                if (showTranslation) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "${verset.numero}. ${verset.traduction}",
-                        fontSize = 16.sp,
-                        color = Color(0xFF37474F),
-                        lineHeight = 24.sp
-                    )
-                }
 
-                if (index < verse.versets.size - 1) {
-                    Spacer(modifier = Modifier.height(16.dp))
+
+                    if (showTransliteration && verset.transliteration.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = verset.transliteration,
+                            fontSize = (14 * textSizeFactor).sp,
+                            color = Color(0xFF888888),
+                            fontStyle = FontStyle.Italic,
+                            textAlign = TextAlign.Center,
+                            lineHeight = (20 * textSizeFactor).sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    if (showTranslation && verset.traduction.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = verset.traduction,
+                            fontSize = (16 * textSizeFactor).sp,
+                            color = Color(0xFF37474F),
+                            textAlign = TextAlign.Center,
+                            lineHeight = (24 * textSizeFactor).sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    if (index < verse.versets.lastIndex) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Divider(color = Color(0xFFF0F0F0), thickness = 0.7.dp)
+                    }
                 }
             }
         }
     }
 }
+
+
 
 @Composable
 fun VersetsList(
@@ -434,6 +479,7 @@ fun VersetsList(
     }
 }
 
+
 @Composable
 fun SimpleTextDisplay(
     verse: QuranVerse,
@@ -441,24 +487,45 @@ fun SimpleTextDisplay(
     showTransliteration: Boolean
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA))
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp, horizontal = 16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(3.dp),
+        shape = RoundedCornerShape(20.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+
+            // Texte arabe
             Text(
                 text = verse.texte,
-                fontSize = 18.sp,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF1B5E20),
                 textAlign = TextAlign.End,
                 modifier = Modifier.fillMaxWidth(),
-                color = TextDark,
-                lineHeight = 32.sp
+                lineHeight = 34.sp
             )
 
+            // Translittération
+            if (showTransliteration && verse.transliteration.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = verse.transliteration,
+                    fontSize = 14.sp,
+                    fontStyle = FontStyle.Italic,
+                    color = Color(0xFF555555),
+                    lineHeight = 22.sp
+                )
+            }
+
+            // Traduction
             if (showTranslation && verse.traduction.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = verse.traduction,
                     fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal,
                     color = Color(0xFF37474F),
                     lineHeight = 24.sp
                 )
@@ -466,6 +533,8 @@ fun SimpleTextDisplay(
         }
     }
 }
+
+
 
 @Composable
 private fun AudioControls() {

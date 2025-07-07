@@ -1,0 +1,52 @@
+{
+  "number": 1,
+  "name": "سورة الفاتحة",
+  "transliteration_en": "Al-Faatiha",
+  "translation_fr": "L'Ouverture",
+  "total_verses": 7,
+  "revelation_type": "Mecquoise",
+  "verses": [
+    {
+      "number": 1,
+      "text": "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+      "phonetic": "Bismi Llāhi r-Raḥmāni r-Raḥīm",
+      "translation_fr": "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux."
+    },
+    {
+      "number": 2,
+      "text": "ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ",
+      "phonetic": "Al-ḥamdu li-Llāhi rabbi l-ʿālamīn",
+      "translation_fr": "Louange à Allah, Seigneur de l'univers."
+    },
+    {
+      "number": 3,
+      "text": "ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+      "phonetic": "Ar-Raḥmāni r-Raḥīm",
+      "translation_fr": "Le Tout Miséricordieux, le Très Miséricordieux,"
+    },
+    {
+      "number": 4,
+      "text": "مَٰلِكِ يَوْمِ ٱلدِّينِ",
+      "phonetic": "Māliki yawmi d-dīn",
+      "translation_fr": "Maître du Jour de la Rétribution."
+    },
+    {
+      "number": 5,
+      "text": "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
+      "phonetic": "Iyyāka naʿbudu wa iyyāka nastaʿīn",
+      "translation_fr": "C'est Toi [Seul] que nous adorons, et c'est Toi [Seul] dont nous implorons secours."
+    },
+    {
+      "number": 6,
+      "text": "ٱهْدِنَا ٱلصِّرَٰطَ ٱلْمُسْتَقِيمَ",
+      "phonetic": "Ihdina ṣ-ṣirāṭa l-mustaqīm",
+      "translation_fr": "Guide-nous dans le droit chemin,"
+    },
+    {
+      "number": 7,
+      "text": "صِرَٰطَ ٱلَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ ٱلْمَغْضُوبِ عَلَيْهِمْ وَلَا ٱلضَّآلِّينَ",
+      "phonetic": "Ṣirāṭa lladhīna anʿamta ʿalayhim ghayri l-maghḍūbi ʿalayhim wa lā ḍ-ḍāllīn",
+      "translation_fr": "Le chemin de ceux que Tu as comblés de faveurs, non pas de ceux qui ont encouru Ta colère, ni des égarés."
+    }
+  ]
+}
