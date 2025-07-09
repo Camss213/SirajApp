@@ -32,7 +32,7 @@ fun RappelsScreen(onBack: () -> Unit) {
     var currentStep by remember { mutableStateOf(0) }
     var selectedNom by remember { mutableStateOf<NomAllah?>(null) }
 
-    val dhikrPhrases = listOf("SubhanAllah", "Allahu Akbar", "Alhamdulillah")
+    val dhikrPhrases = listOf("SubhanAllah","Alhamdulillah", "Allahu Akbar")
     val maxCount = 33
     val isFinished = currentStep >= dhikrPhrases.size
 
@@ -208,7 +208,7 @@ fun DhikrClicker(
             Text("Dhikr", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = DarkGreen)
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = if (!isFinished) dhikrPhrases[currentStep] else "Dhikr terminé ✅",
+                text = if (!isFinished) dhikrPhrases[currentStep] else "la hawla wa la quwwata illa billah",
                 fontSize = 20.sp,
                 color = TextDark
             )

@@ -41,7 +41,7 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.drawable.logo_siraj),
+            painter = painterResource(id = R.drawable.logosiraj),
             contentDescription = "Logo",
             modifier = Modifier.size(140.dp)
         )
@@ -91,6 +91,17 @@ fun HomeScreen(
         if (isLoading) {
             CircularProgressIndicator(color = Color(0xFF00695C))
         }
+
+
+        Button(
+            onClick = {navController.navigate("tajwid") },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF80CBC4))
+        ){
+            Text(" Tajweed", fontSize = 18.sp, color = Color(0xFF004D40))
+        }
+
+
 
         error?.let {
             Text(

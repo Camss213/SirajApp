@@ -87,6 +87,11 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
+                    composable("tajwid") {
+                        TajwidCorrectionScreen(onBack = { navController.popBackStack() })
+                    }
+
+
                 }
 
                 // Affichage des erreurs globales (SnackBar ou autre composable si besoin)
