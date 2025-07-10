@@ -12,8 +12,12 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val GradientBackground = Brush.verticalGradient(
-    colors = listOf(Color(0xFFE0F7FA), Color(0xFFB2EBF2))
+    colors = listOf(
+        Color(0xFFAFEFCF), // haut
+        Color(0xFF85CCC1)  // bas
+    )
 )
+
 val ButtonColor = Color(0xFF80DEEA)
 val DarkGreen = Color(0xFF004D40)
 val TextDark = Color(0xFF1B5E20)
