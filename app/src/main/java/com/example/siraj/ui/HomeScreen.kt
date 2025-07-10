@@ -2,12 +2,14 @@ package com.example.siraj.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -28,94 +30,130 @@ fun HomeScreen(
     onRetry: () -> Unit,
     onClearError: () -> Unit
 ) {
+    val menuItems = listOf(
+        Triple("Lecture du Coran", R.drawable.quran1) { navController.navigate("quran") },
+        Triple("Horaires de prière", R.drawable.prayer_mat) { navController.navigate("prayer_times") },
+        Triple("Rappels & Douaas", R.drawable.doua) { navController.navigate("rappels_slider") },
+        Triple("Tajwid", R.drawable.tajweed_chart) { navController.navigate("tajwid") }
+    )
+
+    var currentIndex by remember { mutableStateOf(0) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFFE8F5E9), Color(0xFFB2DFDB))
+                    colors = listOf(
+                        Color(0xFFAFEFCF), // haut
+                        Color(0xFF85CCC1)  // bas
+                    )
                 )
             )
-            .padding(32.dp),
-        verticalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterVertically),
+            .padding(horizontal = 24.dp, vertical = 32.dp),
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.logosiraj),
-            contentDescription = "Logo",
-            modifier = Modifier.size(140.dp)
-        )
 
-        Text(
-            "Siraj",
-            fontSize = 36.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF00695C)
-        )
-
-        Button(
-            onClick = { navController.navigate("quran") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF80CBC4)),
-            enabled = !isLoading
+        // Logo Siraj
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(top = 50.dp, bottom = 50.dp)
         ) {
-            Text("📖 Lire le Coran", fontSize = 18.sp)
-        }
-
-        Button(
-            onClick = { navController.navigate("quran_search") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4DB6AC))
-        ) {
-            Icon(Icons.Default.Search, contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Rechercher", fontSize = 18.sp)
-        }
-
-        Button(
-            onClick = { navController.navigate("prayer_times") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF26A69A))
-        ) {
-            Text("🕌 Horaires de prière", fontSize = 18.sp)
-        }
-
-        Button(
-            onClick = { navController.navigate("rappels") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA7FFEB))
-        ) {
-            Text("📿 Rappels/Douaas", fontSize = 18.sp, color = Color(0xFF004D40))
-        }
-
-        if (isLoading) {
-            CircularProgressIndicator(color = Color(0xFF00695C))
-        }
-
-
-        Button(
-            onClick = {navController.navigate("tajwid") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF80CBC4))
-        ){
-            Text(" Tajweed", fontSize = 18.sp, color = Color(0xFF004D40))
-        }
-
-
-
-        error?.let {
-            Text(
-                text = it,
-                color = Color.Red,
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center
+            Image(
+                painter = painterResource(id = R.drawable.logosiraj),
+                contentDescription = "Logo Siraj",
+                modifier = Modifier.size(200.dp)
             )
-            Row {
-                TextButton(onClick = onRetry) {
-                    Text("Réessayer")
-                }
-                TextButton(onClick = onClearError) {
-                    Text("Ignorer")
+        }
+
+        // Menu slider
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            IconButton(
+                onClick = { if (currentIndex > 0) currentIndex-- },
+                enabled = currentIndex > 0,
+                modifier = Modifier
+                    .size(42.dp)
+                    .background(
+                        color = Color.White.copy(alpha = 0.6f),
+                        shape = CircleShape
+                    )
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "Précédent",
+                    tint = Color(0xFF00695C)
+                )
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { menuItems[currentIndex].third() }
+            ) {
+                Image(
+                    painter = painterResource(id = menuItems[currentIndex].second),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(180.dp)
+                        .padding(bottom = 8.dp)
+                        .offset(y = (-16).dp)
+                )
+
+                Text(
+                    text = menuItems[currentIndex].first,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF00695C),
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            IconButton(
+                onClick = { if (currentIndex < menuItems.lastIndex) currentIndex++ },
+                enabled = currentIndex < menuItems.lastIndex,
+                modifier = Modifier
+                    .size(42.dp)
+                    .background(
+                        color = Color.White.copy(alpha = 0.6f),
+                        shape = CircleShape
+                    )
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowForward,
+                    contentDescription = "Suivant",
+                    tint = Color(0xFF00695C)
+                )
+            }
+        }
+
+        // Loading
+        if (isLoading) {
+            Spacer(modifier = Modifier.height(24.dp))
+            CircularProgressIndicator(color = Color(0xFF004D40))
+        }
+
+        // Erreur
+        error?.let {
+            Spacer(modifier = Modifier.height(16.dp))
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = it,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+                Row {
+                    TextButton(onClick = onRetry) { Text("Réessayer") }
+                    TextButton(onClick = onClearError) { Text("Ignorer") }
                 }
             }
         }

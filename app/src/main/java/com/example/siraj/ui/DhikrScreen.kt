@@ -1,152 +1,116 @@
 package com.example.siraj.ui
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.siraj.R
+import com.example.siraj.ui.theme.GradientBackground
+import com.example.siraj.ui.theme.TextDark
+import com.example.siraj.ui.theme.DarkGreen
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DhikrScreen(onBack: () -> Unit) {
-    data class Dhikr(
-        val name: String,
-        val arabic: String,
-        val count: Int
-    )
+fun DhikrScreen(navController: NavController) {
+    var compteur by remember { mutableStateOf(0) }
+    var currentStep by remember { mutableStateOf(0) }
 
-    val dhikrList = listOf(
-        Dhikr("Subhanallah", "سُبْحَانَ اللَّهِ", 33),
-        Dhikr("Alhamdulillah", "الْحَمْدُ لِلَّهِ", 33),
-        Dhikr("Allahu Akbar", "اللَّهُ أَكْبَرُ", 33)
-    )
+    val dhikrPhrases = listOf("SubhanAllah", "Alhamdulillah", "Allahu Akbar")
+    val maxCount = 33
+    val isFinished = currentStep >= dhikrPhrases.size
 
-    var selectedDhikr by remember { mutableStateOf(dhikrList[0]) }
-    var currentCount by remember { mutableStateOf(0) }
-
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(GradientBackground)
+            .padding(16.dp)
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Dhikr",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Retour", tint = Color.Black)
+        // Logo retour à l'accueil
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable {
+                    navController.navigate("home") {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-            )
-
-            // Sélecteur de dhikr
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(dhikrList) { dhikr ->
-                    FilterChip(
-                        selected = selectedDhikr == dhikr,
-                        onClick = {
-                            selectedDhikr = dhikr
-                            currentCount = 0
-                        },
-                        label = { Text(dhikr.name) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = DarkGreen,
-                            selectedLabelColor = Color.White
-                        )
-                    )
                 }
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.lanterne),
+                    contentDescription = "Retour à l'accueil",
+                    modifier = Modifier.size(40.dp)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.dikhr),
+                    contentDescription = "Icône Dhikr",
+                    modifier = Modifier.size(36.dp)
+                )
             }
+        }
 
-            // Carte principale
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .clip(RoundedCornerShape(20.dp)),
+                modifier = Modifier.fillMaxWidth(0.85f),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                shape = MaterialTheme.shapes.large,
+                elevation = CardDefaults.cardElevation(3.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(24.dp),
+                    modifier = Modifier.padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Texte arabe
+                    Text("Dhikr", fontSize = 18.sp, color = DarkGreen)
+                    Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = selectedDhikr.arabic,
-                        fontSize = 36.sp,
-                        color = TextDark,
-                        textAlign = TextAlign.Center
+                        text = if (!isFinished) dhikrPhrases[currentStep] else "La hawla wa la quwwata illa billah",
+                        fontSize = 20.sp,
+                        color = TextDark
                     )
-
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text("$compteur / $maxCount", fontSize = 32.sp, color = TextDark)
                     Spacer(modifier = Modifier.height(16.dp))
-
-                    // Compteur
-                    Text(
-                        text = currentCount.toString(),
-                        fontSize = 48.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = DarkGreen
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Boutons
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        // Bouton +1
+                    Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
                         Button(
-                            onClick = { currentCount++ },
-                            colors = ButtonDefaults.buttonColors(containerColor = ButtonColor),
-                            modifier = Modifier.weight(1f)
+                            onClick = {
+                                if (!isFinished) {
+                                    compteur++
+                                    if (compteur >= maxCount) {
+                                        compteur = 0
+                                        currentStep++
+                                    }
+                                }
+                            },
+                            enabled = !isFinished,
+                            colors = ButtonDefaults.buttonColors(containerColor = DarkGreen)
                         ) {
-                            Text("+1", color = Color.Black)
+                            Text(if (!isFinished) "Cliquez" else "Terminé", color = Color.White)
                         }
 
-                        // Bouton Reset
-                        Button(
-                            onClick = { currentCount = 0 },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                            border = BorderStroke(1.dp, ButtonColor),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Reset", color = DarkGreen)
+                        OutlinedButton(onClick = {
+                            compteur = 0
+                            currentStep = 0
+                        }) {
+                            Text("Reset")
                         }
-                    }
-
-                    // Message objectif atteint
-                    if (currentCount >= selectedDhikr.count) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Objectif: ${selectedDhikr.count} atteint!",
-                            color = DarkGreen,
-                            fontWeight = FontWeight.Bold
-                        )
                     }
                 }
             }
